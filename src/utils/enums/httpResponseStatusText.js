@@ -1,7 +1,7 @@
-const httpStatusText= {
+const httpResponseStatusText= {
     SUCCESS : 'success',
     FAIL : 'fail' ,
     ERROR : 'error'
 }
 
-module.exports= httpStatusText;
+module.exports= httpResponseStatusText;
