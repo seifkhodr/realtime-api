@@ -3,11 +3,12 @@
  * https://auth0.com/
  */
 
-const jwt = require('jsonwebtoken');
-const getEnv = require('../config/env.config');
+import jwt from 'jsonwebtoken';
+import getEnv from '../config/env.config.js';
 
 
 async function generateToken(payload){
+    // create the token with the payload and the secret key and the expiration time
     return jwt.sign(
         payload,
         getEnv('JWT_SECRET_KEY' , null),
@@ -18,10 +19,11 @@ async function generateToken(payload){
 }
 
 async function verifyToken(token){
+    // verify the token with the secret key
     return jwt.verify(token,getEnv('JWT_SECRET_KEY',null));
 }
 
-module.exports = {
+export default {
     generateToken,
     verifyToken
 }

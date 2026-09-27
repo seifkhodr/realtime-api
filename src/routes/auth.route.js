@@ -1,4 +1,5 @@
-const express = require('express');
+import express from 'express';
+
 const router = express.Router();
 
 router.route('/regiter')
@@ -7,4 +8,4 @@ router.route('/regiter')
 router.route('/login')
     .post()
     
-module.exports=router;
+export default router;

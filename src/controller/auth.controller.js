@@ -1,5 +1,5 @@
-const authService = require('../service/auth.service');
-const UserModel = require('../model/user.model');
+import authService from '../service/auth.service.js';
+import UserModel from '../model/user.model.js';
 
 /**
  * Register a new user
@@ -41,7 +41,7 @@ const login = async (req, res ,next) => {
     }
 }
 
-module.exports = {
+export default {
     register,
     login
 };

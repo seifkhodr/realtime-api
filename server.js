@@ -1,7 +1,7 @@
-const app = require('./app');
-const getEnv = require('./src/config/env.config');
-const DbConfig = require('./src/config/db.config');
-const mongoose = require('mongoose');
+import app from './app.js';
+import getEnv from './src/config/env.config.js';
+import DbConfig from './src/config/db.config.js';
+import mongoose from 'mongoose';
 
 const port = getEnv('PORT' , null);
 

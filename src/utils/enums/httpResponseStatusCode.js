@@ -20,7 +20,7 @@ const httpResponseServerErrorCode = {
     SERVICE_UNVAILABLE : 503
 };
 
-module.exports = {
+export default {
     httpResponseSuccessCode,
     httpResponseClientErrorCode,
     httpResponseServerErrorCode

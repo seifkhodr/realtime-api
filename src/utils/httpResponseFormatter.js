@@ -10,7 +10,7 @@
  * for error {status , message}
  * for fail {status , message ,data is optional since it contain the errors maybe called it errors} 
  */
-const httpStatusText = require('./enums/httpResponseStatusText');
+import httpStatusText from './enums/httpResponseStatusText.js';
 
 function httpResponseFactory(status,code,data,message){
     if(status === httpStatusText.SUCCESS){
@@ -42,7 +42,7 @@ function  httpErrorResponse(message,data){
     return httpResponseFactory(httpStatusText.ERROR)
 }
 
-module.exports = {
+export default {
     httpSuccessResponse,
     httpFailResponse,
     httpErrorResponse

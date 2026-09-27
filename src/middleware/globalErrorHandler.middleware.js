@@ -27,7 +27,7 @@ function globalErrorHandler(err , req , res , next){
     res.status(err.statusCode).end();
 }
 
-module.exports = globalErrorHandler;
+export default globalErrorHandler;
 
 /**
  *later read about the prcess -level handlers

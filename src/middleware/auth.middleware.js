@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const getEnv = require('../config/env.config');
+import jwt from 'jsonwebtoken';
+import getEnv from '../config/env.config.js';
 
 function authMiddleware (req,res,next){
     // get the authorization header (e.g. Bearer ngjkfn12un4wejkfnrn....)
@@ -26,4 +26,4 @@ function authMiddleware (req,res,next){
     }
 }
 
-module.exports = authMiddleware;
+export default authMiddleware;

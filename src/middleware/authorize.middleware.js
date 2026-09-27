@@ -23,4 +23,4 @@ function isAuthorize(...roles){
     }
 }
 
-module.exports = isAuthorize;
+export default isAuthorize;

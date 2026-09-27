@@ -1,4 +1,6 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const getEnv = (key ,defaultKey)=>{
     const value = process.env[key];
@@ -9,4 +11,4 @@ const getEnv = (key ,defaultKey)=>{
     return value || defaultKey;
 }
 
-module.exports = getEnv;
+export default getEnv;

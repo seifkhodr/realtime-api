@@ -7,4 +7,4 @@ function catchAsyncWrapper(fn){
     }
 }
 
-module.exports = catchAsyncWrapper;
+export default catchAsyncWrapper;

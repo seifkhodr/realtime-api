@@ -7,7 +7,7 @@ async function authenticateUser(){
 
 }
 
-module.exports = {
+export default {
     createUser ,
     authenticateUser
 }

@@ -1,8 +1,9 @@
-const getEnv = require('./env.config');
+import getEnv from './env.config.js';
+import mongoose from 'mongoose';
 
 class DbConnection {
     constructor(){
-        this.mongoose = require('mongoose');
+        this.mongoose = mongoose;
     }
 
     async connect(){
@@ -41,4 +42,4 @@ class DbConnection {
     }
 }
 
-module.exports = DbConnection;
+export default DbConnection;

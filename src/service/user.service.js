@@ -11,7 +11,7 @@ async function updateUserProfile(){
 
 }
 
-module.exports = {
+export default {
     deleteUser ,
     deactivateUser ,
     updateUserProfile
