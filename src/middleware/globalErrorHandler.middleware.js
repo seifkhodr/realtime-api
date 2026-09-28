@@ -10,14 +10,14 @@
 
 function globalErrorHandler(err, req, res, next) {
     // DEBUGGING ERROR HANDLER
-    console.error("Global Error Handler caught:", err);
-    return res.status(err.status || err.statusCode || 500).json({
-        message: err.message || 'Internal Server Error',
-        errors: err.errors || undefined, // For validation errors
-        // stack: err.stack
-    });
+    // console.error("Global Error Handler caught:", err);
+    // return res.status(err.status || err.statusCode || 500).json({
+    //     message: err.message || 'Internal Server Error',
+    //     errors: err.errors || undefined, // For validation errors
+    //     // stack: err.stack
+    // });
 
-    /*
+    
     // for no customized errors
     if(!err.isOperational){
         // not client errors like validation auth....
@@ -26,7 +26,7 @@ function globalErrorHandler(err, req, res, next) {
         })
     }
     // if client errors just format it 
-    const patten= new RegExp(/^4\d{2}$/ ,flags);
+    const patten= new RegExp(/^4\d{2}$/ , 'g');
     const status = err.statusCode.toString();
 
     if(pattern.test(status)){
@@ -36,7 +36,7 @@ function globalErrorHandler(err, req, res, next) {
     } 
     // now send the response after handle all this
     return res.status(err.statusCode).end();
-    */
+    
 }
 
 export default globalErrorHandler;

@@ -12,14 +12,14 @@ const userSchema = new Schema({
     },
     lastName : {
         type : String ,
-        require : [true , 'Last Name is required'],
+        required : [true , 'Last Name is required'],
         trim : true ,
         minlength : [3, 'Last Name must be at least 2 characters long'],
         maxlength : [30, 'Last Name cannot exceed 50 characters']
     },
     age : {
         type : Number ,
-        require : [true , 'Age is required'],
+        required : [true , 'Age is required'],
 
     },
     email : {
