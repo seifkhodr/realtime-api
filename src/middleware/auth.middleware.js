@@ -6,7 +6,7 @@ function authMiddleware(req, res, next) {
     const authHeader = req.headers.authorization;
     // check if exist or start with Bearer(valid format )
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        const error = new Error('unothorized');
+        const error = new Error('unauthorized');
         return next(error);
     }
     // if valid get the token 

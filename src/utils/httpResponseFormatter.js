@@ -40,7 +40,7 @@ function httpFailResponse(message, data) {
 
 //to be changed later when implement the ui
 function httpErrorResponse(message, data) {
-    return httpResponseFactory(httpStatusText.ERROR)
+    return httpResponseFactory(httpStatusText.ERROR,null, data, message);
 }
 
 export default {

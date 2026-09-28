@@ -14,7 +14,8 @@ const StartServer = async ()=>{
             console.log(`server started at http://localhost:${port}`);
         });
     } catch (error) {
-        
+        console.log('Error while starting server : ' , error);
+        process.exit(1);
     }
 }
 
