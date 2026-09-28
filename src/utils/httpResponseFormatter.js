@@ -12,33 +12,34 @@
  */
 import httpStatusText from './enums/httpResponseStatusText.js';
 
-function httpResponseFactory(status,code,data,message){
-    if(status === httpStatusText.SUCCESS){
+function httpResponseFactory(status, code, data, message) {
+    if (status === httpStatusText.SUCCESS) {
         return {
-            status ,
-            data
+            status,
+            data,
         }
-    }else{
+    } else {
         return {
-            status ,
-            message ,
-            data
+            status,
+            message,
+            data,
+            code
         }
     }
 }
 
 // to be changed when implement the ui
-function httpSuccessResponse(data){
-    return httpResponseFactory(httpStatusText.SUCESS,null,data,null);
+function httpSuccessResponse(data) {
+    return httpResponseFactory(httpStatusText.SUCCESS, null, data, null);
 }
 
 // to be changed later when implement the ui
-function httpFailResponse(message,data){
-    return httpResponseFactory(httpStatusText.FAIL,null,data,message);
+function httpFailResponse(message, data) {
+    return httpResponseFactory(httpStatusText.FAIL, null, data, message);
 }
 
 //to be changed later when implement the ui
-function  httpErrorResponse(message,data){
+function httpErrorResponse(message, data) {
     return httpResponseFactory(httpStatusText.ERROR)
 }
 

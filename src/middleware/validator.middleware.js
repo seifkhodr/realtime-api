@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator';
 
-function validationMiddleware(req,res,next){
+function validatorMiddleware(req,res,next){
     const errors = validationResult(req);
     if(!errors.isEmpty()){
 
@@ -12,7 +12,7 @@ function validationMiddleware(req,res,next){
                 }
             }else{
                 return {
-                    message : err.msg
+                    message : error.msg
                 }
             }
         });
@@ -28,4 +28,4 @@ function validationMiddleware(req,res,next){
     return next();
 }
 
-export default validationMiddleware;
+export default validatorMiddleware;
