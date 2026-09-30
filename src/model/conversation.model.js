@@ -1,4 +1,4 @@
-import conversationSchema from '../schema/conversation.schema';
+import conversationSchema from '../schema/conversation.schema.js';
 import mongoose from 'mongoose';
 
 const conversationModel = mongoose.model('Conversation' , conversationSchema);
