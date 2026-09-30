@@ -1,8 +1,8 @@
 import authService from '../service/auth.service.js';
 import catchAsyncWrapper from '../middleware/catchAsyncWrapper.middleware.js';
-import httpResponseFormatter from '../utils/httpResponseFormatter.js';
 import tokenUtils from '../utils/token.utils.js';
-import httpResponseCode from '../utils/enums/httpResponseStatusCode.js';
+import { httpResponseSuccessCode } from "../utils/enums/httpResponseStatusCode.js";
+import { httpSuccessResponse } from "../utils/httpResponseFormatter.js";
 
 const register = catchAsyncWrapper(
     async (req, res, next) => {
@@ -18,10 +18,10 @@ const register = catchAsyncWrapper(
 
         return res
             .status(
-                httpResponseCode.httpResponseSuccessCode.CREATED
+                httpResponseSuccessCode.CREATED
             )
             .json(
-                httpResponseFormatter.httpSuccessResponse({ user: newUser, token })
+                httpSuccessResponse({ user: newUser, token })
             );
     }
 );
@@ -41,10 +41,10 @@ const login = catchAsyncWrapper(
 
         return res
             .status(
-                httpResponseCode.httpResponseSuccessCode.OK
+                httpResponseSuccessCode.OK
             )
             .json(
-                httpResponseFormatter.httpSuccessResponse({ user, token })
+                httpSuccessResponse({ user, token })
             )
     }
 );

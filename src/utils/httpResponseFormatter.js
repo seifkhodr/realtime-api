@@ -43,7 +43,7 @@ function httpErrorResponse(message, data) {
     return httpResponseFactory(httpStatusText.ERROR,null, data, message);
 }
 
-export default {
+export {
     httpSuccessResponse,
     httpFailResponse,
     httpErrorResponse

@@ -60,7 +60,9 @@ const userSchema = new Schema({
 );
 
 userSchema.virtual('fullName').get(function(){
+
     return this.firstName.concat(' ' ,this.lastName);
+    
 });
 
 userSchema.static('findByEmail' ,function(email){
