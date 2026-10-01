@@ -4,14 +4,23 @@ import globalErrorHandler from './src/middleware/globalErrorHandler.middleware.j
 import friendsListRoutes from './src/routes/friendsList.route.js';
 import conversationRoutes from './src/routes/conversation.route.js';
 import messageRoutes from './src/routes/message.route.js';
+import {dirname ,join} from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
 app.use(express.json());
+app.use(express.static(join(__dirname, 'public')));
 
 app.get('/health' , (req,res,next)=>{
     res.send('ok');
 });
+
+app.get('/' , (req,res)=>{
+    res.sendFile(join(__dirname,'public/index.html'));
+}); 
 
 app.use('/api/v1/auth',authRoutes);
 app.use('/api/v1/friends',friendsListRoutes);
