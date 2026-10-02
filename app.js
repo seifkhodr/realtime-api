@@ -6,6 +6,7 @@ import conversationRoutes from './src/routes/conversation.route.js';
 import messageRoutes from './src/routes/message.route.js';
 import userRoutes from './src/routes/user.route.js';
 import { NotFoundError } from './src/utils/AppError.js';
+import cookieParser from 'cookie-parser';
 import {dirname ,join} from 'path';
 import { fileURLToPath } from 'url';
 
@@ -14,6 +15,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static(join(__dirname, 'public')));
 
 app.get('/health' , (req,res,next)=>{

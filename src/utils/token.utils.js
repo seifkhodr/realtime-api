@@ -23,9 +23,41 @@ async function verifyToken(token){
     return jwt.verify(token,getEnv('JWT_SECRET_KEY',null));
 }
 
+async function generateAccessToken(payload){
+    return jwt.sign(
+        { ...payload, type: 'access' },
+        getEnv('JWT_SECRET_KEY', null),
+        {
+            expiresIn: getEnv('JWT_EXPIRATION_TIME', '15m')
+        }
+    );
+}
+
+async function generateRefreshToken(payload){
+    return jwt.sign(
+        { ...payload, type: 'refresh' },
+        getEnv('JWT_REFRESH_SECRET_KEY', null),
+        {
+            expiresIn: getEnv('JWT_REFRESH_TOKEN_EXPIRY_TIME', '7d')
+        }
+    );
+}
+
+async function verifyAccessToken(token){
+    return jwt.verify(token, getEnv('JWT_SECRET_KEY', null));
+}
+
+async function verifyRefreshToken(token){
+    return jwt.verify(token, getEnv('JWT_REFRESH_SECRET_KEY', null));
+}
+
 export default {
     generateToken,
-    verifyToken
+    verifyToken,
+    generateAccessToken,
+    generateRefreshToken,
+    verifyAccessToken,
+    verifyRefreshToken
 }
 
 /**

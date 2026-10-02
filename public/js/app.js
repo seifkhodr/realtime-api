@@ -19,6 +19,7 @@ function getSavedSession() {
 }
 
 function logoutAndRedirect() {
+  new ApiBuilder().auth.logout().catch(() => {});
   localStorage.removeItem(SESSION_KEY);
   window.location.href = "/auth.html";
 }
@@ -35,11 +36,10 @@ if (!session || !session.token || !session.user) {
 // =============================================================================
 
 const currentUser = session.user;   // the logged-in user object { _id, firstName, lastName, email }
-const authToken   = session.token;
 
 // builds a fresh API client — we call this before each request
 function getApiClient() {
-  return new ApiBuilder({ token: authToken });
+  return new ApiBuilder({ token: getSavedSession()?.token });
 }
 
 

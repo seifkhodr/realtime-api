@@ -12,5 +12,8 @@ router.route('/register')
 
 router.route('/login')
     .post(authValidator.login,validatorMiddleware,validateAllowedField(allowedFields.authFields.login),authController.login);
+
+router.post('/refresh', authController.refresh);
+router.post('/logout', authController.logout);
     
 export default router;

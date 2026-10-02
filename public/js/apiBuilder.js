@@ -35,7 +35,7 @@ export default class ApiBuilder {
    * @param {string} path
    * @param {RequestInit & { skipAuth?: boolean }} options
    */
-  async _request(path, options = {}) {
+  async _request(path, options = {}, canRefresh = true) {
     const headers = {
       ...(options.body ? { "Content-Type": "application/json" } : {}),
       ...(!options.skipAuth && this.token
@@ -44,7 +44,28 @@ export default class ApiBuilder {
       ...(options.headers ?? {}),
     };
 
-    const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers,
+      credentials: options.credentials ?? "same-origin",
+    });
+
+    if (res.status === 401 && canRefresh && !options.skipAuth && !options.skipRefresh) {
+      try {
+        const refreshed = await this.auth.refresh();
+        this.token = refreshed.token;
+
+        const savedSession = JSON.parse(localStorage.getItem("gather-session"));
+        localStorage.setItem(
+          "gather-session",
+          JSON.stringify({ ...savedSession, token: refreshed.token })
+        );
+
+        return this._request(path, options, false);
+      } catch {
+        // The original 401 is reported below when refresh is unavailable.
+      }
+    }
 
     let json;
     try { json = await res.json(); } catch { json = {}; }
@@ -83,6 +104,24 @@ class AuthEndpoints {
       method: "POST",
       body: JSON.stringify(details),
       skipAuth: true,
+    });
+  }
+
+  /** POST /auth/refresh -> { token } */
+  refresh() {
+    return this._api._request("/auth/refresh", {
+      method: "POST",
+      skipAuth: true,
+      skipRefresh: true,
+    });
+  }
+
+  /** POST /auth/logout */
+  logout() {
+    return this._api._request("/auth/logout", {
+      method: "POST",
+      skipAuth: true,
+      skipRefresh: true,
     });
   }
 }

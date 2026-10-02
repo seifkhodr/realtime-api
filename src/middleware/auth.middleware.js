@@ -1,8 +1,7 @@
-import jwt from 'jsonwebtoken';
-import getEnv from '../config/env.config.js';
 import { UnauthorizedError } from '../utils/AppError.js';
+import tokenUtils from '../utils/token.utils.js';
 
-function authMiddleware(req, res, next) {
+async function authMiddleware(req, res, next) {
     // get the authorization header (e.g. Bearer ngjkfn12un4wejkfnrn....)
     const authHeader = req.headers.authorization;
     // check if exist or start with Bearer(valid format )
@@ -14,8 +13,10 @@ function authMiddleware(req, res, next) {
     const token = authHeader.split(' ')[1];
 
     try {
-        // decode the values in the token
-        const decoded = jwt.verify(token, getEnv('JWT_SECRET_KEY', null));
+        const decoded = await tokenUtils.verifyAccessToken(token);
+        if (decoded.type !== 'access')
+            return next(new UnauthorizedError('Invalid access token'));
+
         //send it to the user;
         req.user = decoded;
         next();
