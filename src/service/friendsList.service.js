@@ -1,7 +1,13 @@
 import friendsList from "../model/friendsList.model.js";
-// import {} from "../utils/AppError"; 
+import {
+    BadRequestError,
+    NotFoundError
+} from '../utils/AppError.js';
 
 const addFriend =async (userId,friendId)=>{
+    if (userId === friendId)
+        throw new BadRequestError('You cannot add yourself as a friend');
+
     const res = await friendsList.findOneAndUpdate(
         {
             userId : userId
@@ -34,6 +40,10 @@ const removeFriend = async (userId,friendId)=>{
             returnDocument : 'after'
         }
     );
+
+    if (!res)
+        throw new NotFoundError('Friends list not found');
+
     return res;
 }
 
@@ -47,7 +57,7 @@ const getFriends = async (userId) => {
         .populate(
             {
                 path : 'friends',
-                select  : '-_id -createAt -updatedAt -lastSeen -avatar +email +lastName +firstName' // for now only
+                select  : 'firstName lastName email' // BUG-FIX: was mixed exclusion/inclusion which MongoDB rejects
             }
         )
 

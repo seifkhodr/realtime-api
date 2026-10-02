@@ -1,14 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f5f0e8">
-    <title>Gather - realtime conversations</title>
-    <link rel="stylesheet" href="./css/app.css">
-  </head>
-  <body>
-    <main id="app" class="app-shell"></main>
-    <script src="./js/app.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gather — Chat</title>
+  <link rel="stylesheet" href="./css/app.css">
+  <!-- jQuery — makes DOM work easier -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!--
+    Socket.IO client library.
+    When our server runs Socket.IO it automatically serves this file at
+    /socket.io/socket.io.js — we load it BEFORE app.js so the global `io`
+    function is available when our module code runs.
+  -->
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  <!-- #app and .layout are required by app.css for the grid layout to work -->
+  <div id="app">
+    <div class="layout">
+
+      <!-- ── Sidebar ───────────────────────────── -->
+      <aside class="sidebar">
+        <div class="brand"><span class="brand-mark">g</span>gather</div>
+
+        <div class="profile">
+          <span class="avatar" id="user-avatar"></span>
+          <div class="profile-info">
+            <strong id="user-name"></strong>
+            <small id="user-email"></small>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-item">
+            <span class="nav-label">Conversations</span>
+            <span class="badge" id="conv-count">0</span>
+          </div>
+          <div class="nav-item">
+            <span class="nav-label">Friends</span>
+            <span class="badge" id="friend-count">0</span>
+          </div>
+        </nav>
+
+        <button class="btn-logout" id="btn-logout">Log out</button>
+      </aside>
+
+      <!-- ── Main ──────────────────────────────── -->
+      <main class="main">
+
+        <!-- error toast -->
+        <div class="toast toast--error" id="toast" style="display:none">
+          <span id="toast-msg"></span>
+          <button id="dismiss-toast">✕</button>
+        </div>
+
+        <!-- search bar -->
+        <div class="search-bar">
+          <input id="search-input" type="search" placeholder="🔍  Search users…" autocomplete="off">
+        </div>
+
+        <!-- search results (hidden until user types) -->
+        <div class="search-results" id="search-results" style="display:none"></div>
+
+        <!-- workspace: conv list + messages -->
+        <div class="workspace">
+
+          <div class="conv-list-panel">
+            <div class="panel-header">
+              <h2>Conversations</h2>
+              <span class="badge" id="conv-count-panel">0</span>
+            </div>
+            <div class="conv-list" id="conv-list">
+              <div class="empty-hint">Loading…</div>
+            </div>
+          </div>
+
+          <!-- message panel -->
+          <div class="msg-panel" id="msg-panel">
+
+            <!-- shown when no conversation is selected -->
+            <div class="msg-panel--empty empty-state" id="msg-empty">
+              <span class="empty-icon">💬</span>
+              <p>Select a conversation</p>
+              <small>Or search for someone to start a new one.</small>
+            </div>
+
+            <!-- filled once a conversation is opened -->
+            <div id="msg-panel-content" style="display:none; flex-direction:column; flex:1; min-height:0;">
+              <div class="msg-header" id="msg-header"></div>
+              <div class="msg-list"   id="msg-list"></div>
+              <form class="msg-compose" id="msg-form">
+                <input id="msg-input" type="text" placeholder="Type a message…" autocomplete="off">
+                <button class="btn btn--primary" type="submit">Send</button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- app logic (module so import works) -->
+  <script type="module" src="./js/app.js"></script>
+</body>
 </html>

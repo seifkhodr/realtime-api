@@ -146,3 +146,5 @@ vite.config.ts.timestamp-*
 *.md
 
 # *.html
+
+src/socket/*

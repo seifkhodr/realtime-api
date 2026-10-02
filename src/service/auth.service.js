@@ -1,12 +1,15 @@
 import User from '../model/user.model.js';
 import passwordUtils from '../utils/password.utils.js';
+import {
+    ConflictError,
+    UnauthorizedError
+} from '../utils/AppError.js';
 
 //recieved data is {fname,lname,email,password,avatar?}
 async function createUser(data) {
     const exist = await User.findByEmail(data.email);
     if (exist) {
-        //edit this when implement the apperror file
-        throw new Error('confilct error');
+        throw new ConflictError('An account with this email already exists');
     }
 
     //now hash password
@@ -35,11 +38,11 @@ async function authenticateUser(data) {
 
     //unauthorized error
     if (!user)
-        throw new Error('User not found');
+        throw new UnauthorizedError('Invalid email or password');
 
     const match = await passwordUtils.comparePasswords(data.password, user.password);
     if (!match)
-        throw new Error('Unauthorized error');
+        throw new UnauthorizedError('Invalid email or password');
 
     return user.toJSON();
 }

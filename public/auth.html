@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Gather</title>
+  <link rel="stylesheet" href="./css/auth.css">
+</head>
+<body>
+
+  <div class="auth-layout">
+
+    <!-- Left: branding -->
+    <div class="auth-brand">
+      <div class="brand-wordmark">gather<span class="brand-dot">.</span></div>
+      <p class="auth-tagline">A place for good conversations</p>
+      <h1>Make room for<br>your people.</h1>
+      <p class="auth-sub">Keep your conversations, friendships, and ideas close.</p>
+    </div>
+
+    <!-- Right: form card -->
+    <div class="auth-panel">
+      <form class="auth-card" id="auth-form" novalidate>
+
+        <p class="eyebrow" id="form-eyebrow">Welcome back</p>
+        <h2 id="form-title">Come on in.</h2>
+
+        <!-- Login / Signup toggle -->
+        <div class="mode-switcher">
+          <button type="button" id="btn-login"  class="active">Log in</button>
+          <button type="button" id="btn-signup">Sign up</button>
+        </div>
+
+        <!-- Signup-only fields (hidden by default) -->
+        <div id="signup-fields" style="display:none">
+          <div class="field-row">
+            <div class="field">
+              <label for="firstName">First Name</label>
+              <input id="firstName" name="firstName" minlength="3">
+            </div>
+            <div class="field">
+              <label for="lastName">Last Name</label>
+              <input id="lastName" name="lastName" minlength="3">
+            </div>
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label for="age">Age</label>
+            <input id="age" name="age" type="number" min="18" max="99">
+          </div>
+        </div>
+
+        <!-- Shared fields -->
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" minlength="8" placeholder="••••••••">
+        </div>
+
+        <!-- Error message -->
+        <p class="form-error" id="form-error" style="display:none"></p>
+
+        <!-- Submit -->
+        <button class="btn btn--primary btn--full" type="submit" id="btn-submit">
+          Enter Gather
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="./js/auth.js"></script>
+</body>
+</html>

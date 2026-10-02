@@ -8,10 +8,10 @@ import {httpSuccessResponse} from "../utils/httpResponseFormatter.js";
 
 const sendMessage = catchAsyncWrapper(
     async (req,res,next)=>{
-        //later use req.data
         const message = await messageService.createMessage(
-            req.body.conversationId,
-            req.user.id,req.body.content
+            req.data.conversationId,
+            req.user.id,
+            req.data.content
         );
 
         return res

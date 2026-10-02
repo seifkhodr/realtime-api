@@ -16,8 +16,10 @@ const httpResponseClientErrorCode={
 };
 
 const httpResponseServerErrorCode = {
+    BAD_GATEWAY : 502 ,
     INTERNAL_SERVER_ERROR : 500 ,
-    SERVICE_UNVAILABLE : 503
+    SERVICE_UNVAILABLE : 503 ,
+    GATEWAY_TIMEOUT : 504
 };
 
 export {

@@ -1,46 +1,69 @@
-/**
- * v1 handle normal error
- * 
- * v2(later)
- * handle the custom errors inside the utils/AppError.js
- * + handle the JsonWebToken errors
- * + handle mongoDB errors
- * + simple errors by js 
- */
+import {
+    httpResponseClientErrorCode,
+    httpResponseServerErrorCode
+} from '../utils/enums/httpResponseStatusCode.js';
+import {
+    httpFailResponse,
+    httpErrorResponse
+} from '../utils/httpResponseFormatter.js';
 
 function globalErrorHandler(err, req, res, next) {
-    // DEBUGGING ERROR HANDLER
-    console.error("Global Error Handler caught:", err);
-    return res.status(err.status || err.statusCode || 500).json({
-        message: err.message || 'Internal Server Error',
-        errors: err.errors || undefined, // For validation errors
-        // stack: err.stack
-    });
+    let statusCode = err.statusCode || httpResponseServerErrorCode.INTERNAL_SERVER_ERROR;
+    let message = err.isOperational ? err.message : 'Internal server error';
+    let data = err.isOperational ? err.data : null;
 
-    
-    // for no customized errors
-    // if(!err.isOperational){
-    //     // not client errors like validation auth....
-    //     return res.status(404).json({
-    //         message : 'Route not found'
-    //     })
-    // }
-    // // if client errors just format it 
-    // const pattern= new RegExp(/^4\d{2}$/ , 'g');
-    // const status = err.statusCode.toString();
+    if (err instanceof SyntaxError && err.status === httpResponseClientErrorCode.BAD_REQUEST) {
+        statusCode = httpResponseClientErrorCode.BAD_REQUEST;
+        message = 'Invalid JSON request body';
+        data = null;
+    }
 
-    // if(pattern.test(status)){
-    //     // start with 4xx so it's a client error
-    // }else{
-    // // 5XX so its an server error
-    // } 
-    // // now send the response after handle all this
-    // return res.status(err.statusCode).end();
-    
+    if (err.code === 11000) {
+        statusCode = httpResponseClientErrorCode.CONFLICT;
+        message = 'Resource already exists';
+        data = null;
+    }
+
+    if (err.name === 'ValidationError') {
+        statusCode = httpResponseClientErrorCode.UNPROCESSIBLE_CONTENT;
+        message = 'Validation failed';
+        data = Object.values(err.errors).map(el => ({
+            field: el.path,
+            message: el.message
+        }));
+    }
+
+    if (err.name === 'CastError') {
+        statusCode = httpResponseClientErrorCode.BAD_REQUEST;
+        message = `Invalid value for ${err.path}`;
+        data = null;
+    }
+
+    if (err.name === 'MongoServerSelectionError' || err.name === 'MongoNetworkError') {
+        statusCode = httpResponseServerErrorCode.SERVICE_UNVAILABLE;
+        message = 'Database service unavailable';
+        data = null;
+    }
+
+    if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+        statusCode = httpResponseClientErrorCode.UNAUTHORIZED;
+        message = 'Invalid or expired token';
+        data = null;
+    }
+
+    if (statusCode >= httpResponseServerErrorCode.INTERNAL_SERVER_ERROR) {
+        data = null;
+    }
+
+    if (statusCode >= httpResponseServerErrorCode.INTERNAL_SERVER_ERROR) {
+        console.error(err);
+    }
+
+    const response = statusCode >= httpResponseServerErrorCode.INTERNAL_SERVER_ERROR
+        ? httpErrorResponse(message, data)
+        : httpFailResponse(message, data);
+
+    return res.status(statusCode).json(response);
 }
 
 export default globalErrorHandler;
-
-/**
- *later read about the prcess -level handlers
- */

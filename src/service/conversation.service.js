@@ -1,28 +1,35 @@
 import Conversation from '../model/conversation.model.js';
+import {
+    BadRequestError,
+    ForbiddenError,
+    NotFoundError
+} from '../utils/AppError.js';
 
-const createConversation = async (userId,payload)=>{ 
-    const {type,name,participants} = payload;
+const createConversation = async (userId, payload) => {
+    const { type, name, participants } = payload;
 
-    validateConversationType(type,participants);
+    // BUG-FIX BUG-04: removed async (no async ops inside), BUG-03: lenght→length
+    validateConversationType(type, participants);
 
-    const allParticipants = [...new Set([userId , ...participants]) ].map(String);
-    
-    if(type === 'direct'){
+    const allParticipants = [...new Set([userId, ...participants])].map(String);
+
+    if (type === 'direct') {
         const existingConversation = await findByParticipants(allParticipants);
-        if(existingConversation)
+        if (existingConversation)
             return existingConversation;
-    }
-    else{
-        const conversation = new Conversation(
-            {
-                type,
-                name: type === 'group' ? name : undefined,
-                owner:userId ,
-                participants : allParticipants
-            }
-        );
 
+        // BUG-FIX BUG-02: direct conversation was also never created — fall through to create below
     }
+
+    // BUG-FIX BUG-02: group conversation was created but never saved or returned
+    const conversation = new Conversation({
+        type,
+        name: type === 'group' ? name : undefined,
+        owner: userId,
+        participants: allParticipants
+    });
+    await conversation.save();
+    return conversation;
 };
 
 export const findByParticipants = async (participants) => {
@@ -64,7 +71,7 @@ const getConversations = async (userId)=>{
     )
     .sort(
         {
-            updateAt : -1
+            updatedAt: -1 // BUG-FIX BUG-09: was 'updateAt' (typo)
         }
     )
 };
@@ -77,13 +84,13 @@ const getConversationById = async (conversationId,userId) => {
         'participants'
     );
     if(!conversation)
-        throw new Error('Conversation not found');
+        throw new NotFoundError('Conversation not found');
 
     const belongsToConversation = conversation.participants.some(
         participant => userId === participant._id.toString()
     )
     if(!belongsToConversation)
-        throw new Error('Unauthorized');
+        throw new ForbiddenError('You are not a participant in this conversation');
 
     return conversation;
 };
@@ -91,13 +98,13 @@ const getConversationById = async (conversationId,userId) => {
 const addParticipant = async (conversationId,userId,newParticipant) => {
     const conversation = await Conversation.findById(conversationId);
     if(!conversation)
-        throw new Error('conversation not found');
+        throw new NotFoundError('Conversation not found');
 
-    if(conversation.type === 'group')
-        throw new Error('Cannot add members to direct chat');
+    if(conversation.type === 'direct')
+        throw new BadRequestError('Cannot add members to a direct conversation');
 
     if(conversation.owner.toString() !== userId)
-        throw new Error('Only Owner can add members');
+        throw new ForbiddenError('Only the owner can add members');
 
     return Conversation.findByIdAndUpdate(
         conversationId,
@@ -115,10 +122,10 @@ const addParticipant = async (conversationId,userId,newParticipant) => {
 const removeParticipant= async (conversationId , userId , participantId) => {
     const conversation = await Conversation.findById(conversationId);
     if(!conversation)
-        throw new Error('Conversation not found');
+        throw new NotFoundError('Conversation not found');
 
     if(conversation.owner.toString() !== userId)
-        throw new Error('Only owner can remove members');
+        throw new ForbiddenError('Only the owner can remove members');
 
     return Conversation.findByIdAndUpdate(
         conversationId,
@@ -133,19 +140,21 @@ const removeParticipant= async (conversationId , userId , participantId) => {
     );
 }
 
-const validateConversationType = async (type,participants) => {
-    const validType = ['direct' , 'group'];
+// BUG-FIX BUG-04: removed async (no async ops), BUG-03: lenght → length
+const validateConversationType = (type, participants) => {
+    const validType = ['direct', 'group'];
 
-    const isValid = validType.includes(type);
-    if(!isValid)
-        throw new Error('Invalid conversation type');
+    if (!validType.includes(type))
+        throw new BadRequestError('Invalid conversation type, must be "direct" or "group"');
 
-    if(type ==='direct' && participants.lenght!==2)
-        throw new Error('Direct Conversation require at least one recipient')
+    if (!Array.isArray(participants))
+        throw new BadRequestError('Participants must be an array');
 
-    if(type ==='group' && participants.lenght<2)
-        throw new Error('Groud Conversation require at least 2 participants')
+    if (type === 'direct' && participants.length !== 1)
+        throw new BadRequestError('Direct conversation requires exactly one recipient');
 
+    if (type === 'group' && participants.length < 2)
+        throw new BadRequestError('Group conversation requires at least 2 participants');
 };
 
 

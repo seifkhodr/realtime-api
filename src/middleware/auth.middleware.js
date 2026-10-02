@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken';
 import getEnv from '../config/env.config.js';
+import { UnauthorizedError } from '../utils/AppError.js';
 
 function authMiddleware(req, res, next) {
     // get the authorization header (e.g. Bearer ngjkfn12un4wejkfnrn....)
     const authHeader = req.headers.authorization;
     // check if exist or start with Bearer(valid format )
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        const error = new Error('unauthorized');
+        const error = new UnauthorizedError('Authentication required');
         return next(error);
     }
     // if valid get the token 
@@ -20,8 +21,6 @@ function authMiddleware(req, res, next) {
         next();
 
     } catch (error) {
-        // jsonwebtoken errors 
-        // handle them later
         return next(error);
     }
 }

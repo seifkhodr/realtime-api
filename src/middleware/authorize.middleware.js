@@ -1,3 +1,5 @@
+import { ForbiddenError, UnauthorizedError } from '../utils/AppError.js';
+
 //return an middleware to check if the user is authorized to do this ops
 function isAuthorize(...roles) {
     return function (req, res, next) {
@@ -6,7 +8,7 @@ function isAuthorize(...roles) {
         //check if is defined(i.e that is auth and has a role in its token)
 
         if (!user || !user.role) {
-            const error = new Error('no authenticate');
+            const error = new UnauthorizedError('Authentication required');
             return next(error);
         }
         //get the role 
@@ -15,7 +17,7 @@ function isAuthorize(...roles) {
         const isAuthorized = roles.includes(role);
         //if not throw unauthorized error
         if (!isAuthorized) {
-            const error = new Error('not authorized');
+            const error = new ForbiddenError('You do not have permission to perform this action');
             return next(error);
         }
         //is authorized go to next middleware

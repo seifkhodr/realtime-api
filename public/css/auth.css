@@ -1,0 +1,292 @@
+/* ── Design tokens (shared) ─────────────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap");
+
+:root {
+  --c-bg: #0f1117;
+  --c-surface: #181c27;
+  --c-surface2: #1f2435;
+  --c-border: rgba(255, 255, 255, 0.08);
+  --c-accent: #6c63ff;
+  --c-accent2: #a78bfa;
+  --c-danger: #ef4444;
+  --c-text: #e8eaf0;
+  --c-muted: #7c8191;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--c-text);
+  background: var(--c-bg);
+  -webkit-font-smoothing: antialiased;
+}
+button {
+  cursor: pointer;
+  font: inherit;
+  border: none;
+  background: none;
+}
+input {
+  font: inherit;
+}
+
+/* ── Auth layout ────────────────────────────────────────────────────────── */
+#auth-app {
+  height: 100%;
+  display: flex;
+}
+
+.auth-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ── Left brand panel ───────────────────────────────────────────────────── */
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(40px, 8vw, 100px) clamp(32px, 6vw, 80px);
+  background:
+    radial-gradient(
+      ellipse at 20% 50%,
+      rgba(108, 99, 255, 0.25) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 80% 20%,
+      rgba(167, 139, 250, 0.15) 0%,
+      transparent 50%
+    ),
+    var(--c-surface);
+  border-right: 1px solid var(--c-border);
+  position: relative;
+  overflow: hidden;
+}
+.auth-brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.015) 0px,
+    rgba(255, 255, 255, 0.015) 1px,
+    transparent 1px,
+    transparent 40px
+  );
+}
+
+.brand-wordmark {
+  font: 700 32px var(--font-serif);
+  color: #fff;
+  letter-spacing: -0.05em;
+  margin-bottom: 48px;
+  position: relative;
+}
+.brand-dot {
+  color: var(--c-accent2);
+}
+
+.auth-tagline {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-accent2);
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.auth-brand h1 {
+  font: 700 clamp(38px, 5vw, 62px) var(--font-serif);
+  color: #fff;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.auth-sub {
+  color: var(--c-muted);
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 380px;
+  position: relative;
+}
+
+/* ── Right auth card panel ──────────────────────────────────────────────── */
+.auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: var(--c-bg);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  display: grid;
+  gap: 18px;
+}
+
+.auth-card .eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-accent2);
+}
+
+.auth-card h2 {
+  font: 700 28px var(--font-serif);
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-top: -6px;
+}
+
+/* ── Mode switcher ──────────────────────────────────────────────────────── */
+.mode-switcher {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--c-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--c-border);
+}
+.mode-switcher button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-muted);
+  transition: all 0.2s;
+}
+.mode-switcher button.active {
+  background: var(--c-accent);
+  color: #fff;
+}
+.mode-switcher button:not(.active):hover {
+  color: var(--c-text);
+}
+
+/* ── Form fields ────────────────────────────────────────────────────────── */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+.field label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+.field input {
+  padding: 12px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface2);
+  color: var(--c-text);
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.field input::placeholder {
+  color: var(--c-muted);
+  opacity: 0.7;
+}
+.field input:focus {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+}
+
+/* ── Error message ──────────────────────────────────────────────────────── */
+.form-error {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ── Submit button ──────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn--primary {
+  background: var(--c-accent);
+  color: #fff;
+}
+.btn--primary:hover:not(:disabled) {
+  background: #5a52e0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+}
+.btn--primary:active {
+  transform: none;
+  box-shadow: none;
+}
+.btn--full {
+  width: 100%;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Signup fields animation ─────────────────────────────────────────────── */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#signup-fields {
+  animation: slideDown 0.2s ease;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+  .auth-brand {
+    display: none;
+  }
+}

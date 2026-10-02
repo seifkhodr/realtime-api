@@ -4,6 +4,8 @@ import globalErrorHandler from './src/middleware/globalErrorHandler.middleware.j
 import friendsListRoutes from './src/routes/friendsList.route.js';
 import conversationRoutes from './src/routes/conversation.route.js';
 import messageRoutes from './src/routes/message.route.js';
+import userRoutes from './src/routes/user.route.js';
+import { NotFoundError } from './src/utils/AppError.js';
 import {dirname ,join} from 'path';
 import { fileURLToPath } from 'url';
 
@@ -26,11 +28,11 @@ app.use('/api/v1/auth',authRoutes);
 app.use('/api/v1/friends',friendsListRoutes);
 app.use('/api/v1/conversations',conversationRoutes);
 app.use('/api/v1/messages',messageRoutes);
+app.use('/api/v1/users',userRoutes);
 
 
 app.use((req,res,next)=>{
-    const error = new Error('resouce not found');
-    error.status = 404;
+    const error = new NotFoundError('Resource not found');
     next(error); // pass to the global error handler 
 });
 

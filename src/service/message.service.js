@@ -1,5 +1,6 @@
 import Message from '../model/message.model.js';
 import Conversation from '../model/conversation.model.js';
+import { ForbiddenError } from '../utils/AppError.js';
 
 const createMessage = async (conversationId,sender,content)=>{
     await validateMembership(conversationId,sender);
@@ -37,7 +38,7 @@ const validateMembership = async (conversationId,userId)=>{
         },
     );
     if(!isMember)
-        throw new Error('Unauthorized');
+        throw new ForbiddenError('You are not a participant in this conversation');
 
     return true;
 };

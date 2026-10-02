@@ -1,5 +1,6 @@
 import getEnv from './env.config.js';
 import mongoose from 'mongoose';
+import { ServiceUnavailableError } from '../utils/AppError.js';
 
 class DbConnection {
     constructor(){
@@ -26,8 +27,7 @@ class DbConnection {
             );
         } catch (error) {
             console.log('Error Connecting to DB :' , error );
-            throw error;
-            // throw service not available 
+            throw new ServiceUnavailableError('Database service unavailable');
         }
     }
 
@@ -36,8 +36,7 @@ class DbConnection {
             await this.mongoose.disconnect();
         } catch (error) {
             console.log('Error Closing Connection to DB :' , error);
-            throw error;
-            //throw service not available
+            throw new ServiceUnavailableError('Database service unavailable');
         }
     }
 }

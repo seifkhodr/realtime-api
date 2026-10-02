@@ -1,4 +1,5 @@
 import { validationResult } from 'express-validator';
+import { UnprocessableEntityError } from '../utils/AppError.js';
 
 function validatorMiddleware(req,res,next){
     const errors = validationResult(req);
@@ -16,11 +17,7 @@ function validatorMiddleware(req,res,next){
                 }
             }
         });
-        //implement unprocessibl entity error later
-        const error = new Error('Validation Failed');
-        error.status = 400;
-        //later send it using custom one 
-        error.errors=errorFormatter;
+        const error = new UnprocessableEntityError('Validation failed', errorFormatter);
         return next(error);
     }
 
