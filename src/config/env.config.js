@@ -4,10 +4,10 @@ import { InternalServerError } from '../utils/AppError.js';
 dotenv.config();
 
 const getEnv = (key, defaultValue = undefined) => {
-    const value = process.env[key]?.trim();
+    const environmentValue = process.env[key]?.trim();
 
-    if (value)
-        return value;
+    if (environmentValue)
+        return environmentValue;
 
     if (defaultValue !== undefined && defaultValue !== null)
         return defaultValue;

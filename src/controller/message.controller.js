@@ -8,7 +8,7 @@ import {httpSuccessResponse} from "../utils/httpResponseFormatter.js";
 
 const sendMessage = catchAsyncWrapper(
     async (req,res,next)=>{
-        const message = await messageService.createMessage(
+        const createdMessage = await messageService.createMessage(
             req.data.conversationId,
             req.user.id,
             req.data.content
@@ -20,7 +20,7 @@ const sendMessage = catchAsyncWrapper(
             )
             .json(
                 httpSuccessResponse(
-                    message
+                    createdMessage
                 )
             );
     }
@@ -28,7 +28,7 @@ const sendMessage = catchAsyncWrapper(
 
 const getMessages = catchAsyncWrapper(
     async (req,res,next) => {
-        const messages = await messageService.getConversationMessages(
+        const paginatedMessages = await messageService.getConversationMessages(
             req.params.conversationId,
             req.user.id,
             req.query
@@ -40,7 +40,7 @@ const getMessages = catchAsyncWrapper(
             )
             .json(
                 httpSuccessResponse(
-                    messages
+                    paginatedMessages
                 )
             )
     }

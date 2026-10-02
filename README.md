@@ -39,7 +39,7 @@ The current phase covers a fully functional **REST API** (auth, conversations, m
 | Redis Pub/Sub                          | 🚧 In Progress |
 | Online Presence & Read Receipts        | 📋 Planned     |
 | Rate Limiting & Helmet                 | 📋 Planned     |
-| Automated Tests                        | 📋 Planned     |
+| Automated Tests                        | 🚧 In Progress |
 
 ---
 
@@ -55,10 +55,10 @@ The current phase covers a fully functional **REST API** (auth, conversations, m
 ### 💬 Chat System
 
 - **Direct conversations** — 1-on-1 messaging with deduplication (no duplicate DM conversations)
-- **Group conversations** — named groups with role-based participant management (`admin` / `member`)
+- **Group conversations** — named groups with owner-gated participant management
 - **Add / Remove participants** — owner-gated group management
 - **Message history** — paginated message retrieval sorted by `createdAt`
-- **`lastMessageId` denormalization** — inbox loads with a single query, no N+1 problem
+- **`lastMessage` denormalization** — stores the latest message reference on conversations
 
 ### 👥 Social
 
@@ -119,7 +119,9 @@ MONGODB_DATABASENAME=chat_app_db
 
 # JWT
 JWT_SECRET_KEY=your_super_secret_jwt_key_min_32_chars
-JWT_EXPIRATION_TIME=7d
+JWT_EXPIRATION_TIME=30m
+JWT_REFRESH_SECRET_KEY=your_refresh_secret_key_min_32_chars
+JWT_REFRESH_TOKEN_EXPIRY_TIME=7d
 
 # Redis (Phase 2)
 REDIS_HOST=127.0.0.1
@@ -154,7 +156,7 @@ Health check: `GET http://localhost:3000/health`
 
 ## 📡 API Reference
 
-All routes are prefixed with `/api/v1`. Protected routes require the `Authorization: Bearer <token>` header.
+All routes are prefixed with `/api/v1`. Protected routes use the HTTP-only `accessToken` cookie. The `Authorization: Bearer <token>` header is also accepted for compatibility.
 
 ### 🔐 Auth
 
@@ -162,6 +164,8 @@ All routes are prefixed with `/api/v1`. Protected routes require the `Authorizat
 | ------ | ---------------- | ---- | ----------------------- |
 | `POST` | `/auth/register` | ❌   | Register a new user     |
 | `POST` | `/auth/login`    | ❌   | Login and receive a JWT |
+| `POST` | `/auth/refresh`  | ❌   | Refresh access and refresh cookies |
+| `POST` | `/auth/logout`   | ❌   | Clear authentication cookies |
 
 **Register body:**
 
@@ -192,7 +196,7 @@ All routes are prefixed with `/api/v1`. Protected routes require the `Authorizat
 | Method   | Endpoint             | Auth | Description                         |
 | -------- | -------------------- | ---- | ----------------------------------- |
 | `GET`    | `/friends`           | ✅   | Get the current user's friends list |
-| `POST`   | `/friends`           | ✅   | Add a friend                        |
+| `POST`   | `/friends/:friendId` | ✅   | Add a friend                        |
 | `DELETE` | `/friends/:friendId` | ✅   | Remove a friend                     |
 
 ---
@@ -205,7 +209,7 @@ All routes are prefixed with `/api/v1`. Protected routes require the `Authorizat
 | `POST`   | `/conversations`                                             | ✅   | Create a new direct or group conversation  |
 | `GET`    | `/conversations/:conversationId`                             | ✅   | Get a specific conversation by ID          |
 | `POST`   | `/conversations/:conversationId/participants`                | ✅   | Add a participant to a group               |
-| `DELETE` | `/conversations/:conversationId/participants/:participantId` | ✅   | Remove a participant (admin only)          |
+| `DELETE` | `/conversations/:conversationId/participants/:participantId` | ✅   | Remove a participant (owner only)          |
 
 **Create conversation body (direct):**
 
@@ -240,10 +244,17 @@ All routes are prefixed with `/api/v1`. Protected routes require the `Authorizat
 ```json
 {
   "conversationId": "<conversationId>",
-  "content": "Hey there!",
-  "type": "text"
+  "content": "Hey there!"
 }
 ```
+
+Message history supports pagination:
+
+```http
+GET /messages/<conversationId>?page=1&limit=20
+```
+
+The response contains `data` and `pagination` metadata. The maximum page size is 50, and messages are ordered by `createdAt`.
 
 ---
 
@@ -303,9 +314,9 @@ realtime-api/
 The schema is purpose-built for a scalable chat app. Key design decisions:
 
 - **Messages are a separate collection** — never embedded in conversation documents (avoids MongoDB's 16MB doc limit)
-- **`lastMessageId` on conversations** — inbox loads in a single query, no N+1
+- **`lastMessage` on conversations** — stores the latest message reference
 - **`lastReadMessageId` per participant** — read receipts with zero extra writes per message
-- **Compound index** `{ conversationId: 1, createdAt: -1 }` on messages — fast paginated history
+- **Compound index** `{ conversationId: 1, createdAt: 1, _id: 1 }` on messages — stable paginated history
 
 See [`DATABASE_ARCHITECTURE.md`](./DATABASE_ARCHITECTURE.md) for the full ERD and schema reference.
 

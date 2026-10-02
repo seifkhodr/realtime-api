@@ -9,12 +9,12 @@ import {
 const createMessage = async (conversationId,sender,content)=>{
     await validateMembership(conversationId,sender);
 
-    const message = new Message({conversationId,sender,content});
-    await message.save();
+    const createdMessage = new Message({conversationId,sender,content});
+    await createdMessage.save();
 
-    await updateLastMessage(conversationId,message._id);
+    await updateLastMessage(conversationId,createdMessage._id);
 
-    return message;
+    return createdMessage;
 };
 
 const getConversationMessages = async (conversationId, userId, query = {}) => {
@@ -24,7 +24,7 @@ const getConversationMessages = async (conversationId, userId, query = {}) => {
     const filter = { conversationId };
     const skip = (page - 1) * limit;
 
-    const [data, totalItems] = await Promise.all([
+    const [messages, totalMessageCount] = await Promise.all([
         Message.find(filter)
             .populate({
                 path: 'sender',
@@ -38,32 +38,32 @@ const getConversationMessages = async (conversationId, userId, query = {}) => {
     ]);
 
     return {
-        data,
-        pagination: createPaginationMeta(page, limit, totalItems)
+        data: messages,
+        pagination: createPaginationMeta(page, limit, totalMessageCount)
     };
 };
 
 const validateMembership = async (conversationId,userId)=>{
-    const isMember = await Conversation.findOne(
+    const membershipRecord = await Conversation.findOne(
         {
             _id : conversationId,
             participants : userId
         },
     );
-    if(!isMember)
+    if(!membershipRecord)
         throw new ForbiddenError('You are not a participant in this conversation');
 
     return true;
 };
 
 const updateLastMessage = async (conversationId,messageId)=>{
-    const res = await Conversation.findByIdAndUpdate(
+    const updatedConversation = await Conversation.findByIdAndUpdate(
         conversationId,
         {
             lastMessage : messageId
         }
     );
-    return res;
+    return updatedConversation;
 };
 
 

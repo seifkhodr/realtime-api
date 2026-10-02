@@ -4,13 +4,13 @@ import { httpResponseSuccessCode } from '../utils/enums/httpResponseStatusCode.j
 import { httpSuccessResponse } from '../utils/httpResponseFormatter.js';
 
 const searchUsers = catchAsyncWrapper(async (req, res) => {
-	const query = String(req.query.q || '').trim();
-	const users = query ? await User.find({
+	const searchQuery = String(req.query.q || '').trim();
+	const users = searchQuery ? await User.find({
 		_id: { $ne: req.user.id },
 		$or: [
-			{ firstName: { $regex: query, $options: 'i' } },
-			{ lastName: { $regex: query, $options: 'i' } },
-			{ email: { $regex: query, $options: 'i' } }
+			{ firstName: { $regex: searchQuery, $options: 'i' } },
+			{ lastName: { $regex: searchQuery, $options: 'i' } },
+			{ email: { $regex: searchQuery, $options: 'i' } }
 		]
 	}).select('firstName lastName email') : [];
 

@@ -6,23 +6,23 @@ import {
 } from '../utils/AppError.js';
 
 //recieved data is {fname,lname,email,password,avatar?}
-async function createUser(data) {
-    const exist = await User.findByEmail(data.email);
-    if (exist) {
+async function createUser(userData) {
+    const existingUser = await User.findByEmail(userData.email);
+    if (existingUser) {
         throw new ConflictError('An account with this email already exists');
     }
 
     //now hash password
-    const hashPassword = await passwordUtils.hashPassword(data.password);
+    const hashedPassword = await passwordUtils.hashPassword(userData.password);
 
     //create user document
     const newUser = new User(
         {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            age: data.age,
-            email: data.email,
-            password: hashPassword
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            age: userData.age,
+            email: userData.email,
+            password: hashedPassword
         }
     );
 
@@ -32,19 +32,19 @@ async function createUser(data) {
 
 }
 
-async function authenticateUser(data) {
-    const user = await User.findByEmail(data.email).select('+password');
+async function authenticateUser(credentials) {
+    const authenticatedUser = await User.findByEmail(credentials.email).select('+password');
     // console.log(user)
 
     //unauthorized error
-    if (!user)
+    if (!authenticatedUser)
         throw new UnauthorizedError('Invalid email or password');
 
-    const match = await passwordUtils.comparePasswords(data.password, user.password);
-    if (!match)
+    const passwordMatches = await passwordUtils.comparePasswords(credentials.password, authenticatedUser.password);
+    if (!passwordMatches)
         throw new UnauthorizedError('Invalid email or password');
 
-    return user.toJSON();
+    return authenticatedUser.toJSON();
 }
 
 export default {

@@ -3,27 +3,27 @@ import tokenUtils from '../utils/token.utils.js';
 
 async function authMiddleware(req, res, next) {
 
-    const cookieToken = req.cookies?.accessToken;
+    const accessTokenFromCookie = req.cookies?.accessToken;
     const authHeader = req.headers.authorization;
 
-    const headerToken = authHeader?.startsWith('Bearer ')
+    const accessTokenFromHeader = authHeader?.startsWith('Bearer ')
         ? authHeader.slice(7)
         : null;
         
-    const token = cookieToken || headerToken;
+    const accessToken = accessTokenFromCookie || accessTokenFromHeader;
 
-    if (!token) {
+    if (!accessToken) {
         const error = new UnauthorizedError('Authentication required');
         return next(error);
     }
 
     try {
-        const decoded = await tokenUtils.verifyAccessToken(token);
-        if (decoded.type !== 'access')
+        const authenticatedUser = await tokenUtils.verifyAccessToken(accessToken);
+        if (authenticatedUser.type !== 'access')
             return next(new UnauthorizedError('Invalid access token'));
 
         //send it to the user;
-        req.user = decoded;
+        req.user = authenticatedUser;
         next();
 
     } catch (error) {

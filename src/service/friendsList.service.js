@@ -1,14 +1,17 @@
 import friendsList from "../model/friendsList.model.js";
+import User from '../model/user.model.js';
 import {
     BadRequestError,
     NotFoundError
 } from '../utils/AppError.js';
 
 const addFriend =async (userId,friendId)=>{
-    if (userId === friendId)
+    if (String(userId) === String(friendId))
         throw new BadRequestError('You cannot add yourself as a friend');
 
-    const res = await friendsList.findOneAndUpdate(
+    await ensureUserExists(friendId);
+
+    const updatedFriendsList = await friendsList.findOneAndUpdate(
         {
             userId : userId
         },
@@ -22,11 +25,13 @@ const addFriend =async (userId,friendId)=>{
             returnDocument : 'after'
         }
     );
-    return res;
+    return populateFriendsList(updatedFriendsList);
 }
 
 const removeFriend = async (userId,friendId)=>{
-    const res = await friendsList.findOneAndUpdate(
+    await ensureUserExists(friendId);
+
+    const updatedFriendsList = await friendsList.findOneAndUpdate(
         {
             userId : userId
         },
@@ -41,14 +46,14 @@ const removeFriend = async (userId,friendId)=>{
         }
     );
 
-    if (!res)
+    if (!updatedFriendsList)
         throw new NotFoundError('Friends list not found');
 
-    return res;
+    return populateFriendsList(updatedFriendsList);
 }
 
 const getFriends = async (userId) => {    
-    const res = await friendsList
+    const friendsListDocument = await friendsList
         .findOne(
             {
                 userId 
@@ -61,8 +66,21 @@ const getFriends = async (userId) => {
             }
         )
 
-    return res;
+    return friendsListDocument || { userId, friends: [] };
 }
+
+const ensureUserExists = async (userId) => {
+    const referencedUser = await User.exists({ _id: userId });
+    if (!referencedUser)
+        throw new NotFoundError('Friend user not found');
+};
+
+const populateFriendsList = async (friendsListDocument) => {
+    return friendsListDocument.populate({
+        path: 'friends',
+        select: 'firstName lastName email'
+    });
+};
 
 
 export default {

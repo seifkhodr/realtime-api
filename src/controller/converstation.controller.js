@@ -5,7 +5,7 @@ import {httpSuccessResponse} from "../utils/httpResponseFormatter.js";
 
 const createConversation = catchAsyncWrapper(
     async (req,res,next)=>{
-        const conversation = await conversationService.createConversation(
+        const createdConversation = await conversationService.createConversation(
             req.user.id,
             req.data
         );
@@ -15,7 +15,7 @@ const createConversation = catchAsyncWrapper(
                 httpResponseSuccessCode.CREATED
             )
             .json(
-                httpSuccessResponse(conversation)
+                httpSuccessResponse(createdConversation)
             );
     }  
 );
@@ -45,14 +45,14 @@ const getConversations= catchAsyncWrapper(
          * get conv for the user that is auth
          * req.user.id
          */
-        const conversation = await conversationService.getConversations(req.user.id);
+        const conversations = await conversationService.getConversations(req.user.id);
         
         return res
             .status(
                 httpResponseSuccessCode.OK
             )
             .json(
-                httpSuccessResponse(conversation)
+                httpSuccessResponse(conversations)
             )
 
     }
@@ -60,14 +60,14 @@ const getConversations= catchAsyncWrapper(
 
 const getConversationById = catchAsyncWrapper(
     async (req,res,next)=>{
-        const conversation = await conversationService.getConversationById(req.params.conversationId,req.user.id);
+        const conversationDetails = await conversationService.getConversationById(req.params.conversationId,req.user.id);
 
         return res
             .status(
                 httpResponseSuccessCode.OK
             )
             .json(
-                httpSuccessResponse(conversation)
+                httpSuccessResponse(conversationDetails)
             )
     }
 );

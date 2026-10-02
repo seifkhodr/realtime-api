@@ -24,73 +24,82 @@ const refreshCookieOptions = {
 };
 
 async function issueTokens(res, user) {
-    const payload = {
+    const authenticatedUserPayload = {
         id: user._id?.toString() || user.id?.toString(),
         fullName: user.fullName,
         email: user.email,
         role: user.role
     };
-    const token = await tokenUtils.generateAccessToken(payload);
-    const refreshToken = await tokenUtils.generateRefreshToken(payload);
+    const accessToken = await tokenUtils.generateAccessToken(authenticatedUserPayload);
+    const refreshToken = await tokenUtils.generateRefreshToken(authenticatedUserPayload);
 
-    res.cookie('accessToken', token, accessCookieOptions);
+    res.cookie('accessToken', accessToken, accessCookieOptions);
     res.cookie('refreshToken', refreshToken, refreshCookieOptions);
-    return token;
+    return accessToken;
 }
 
 const register = catchAsyncWrapper(
     async (req, res, next) => {
-        const newUser = await authService.createUser(req.data);
+        const createdUser = await authService.createUser(req.data);
 
-        const token = await issueTokens(res, newUser);
+        const accessToken = await issueTokens(res, createdUser);
 
         return res
             .status(
                 httpResponseSuccessCode.CREATED
             )
             .json(
-                httpSuccessResponse({ user: newUser, token })
+                httpSuccessResponse({ user: createdUser, token: accessToken })
             );
     }
 );
 
 const login = catchAsyncWrapper(
     async (req, res, next) => {
-        // const { email, password } = req.body;
-        const user = await authService.authenticateUser(req.data);
+        const authenticatedUser = await authService.authenticateUser(req.data);
 
-        const token = await issueTokens(res, user);
+        const accessToken = await issueTokens(res, authenticatedUser);
 
         return res
             .status(
                 httpResponseSuccessCode.OK
             )
             .json(
-                httpSuccessResponse({ user, token })
+                httpSuccessResponse({ user: authenticatedUser, token: accessToken })
             )
     }
 );
 
 const refresh = catchAsyncWrapper(async (req, res) => {
-    const refreshToken = req.cookies?.refreshToken;
-    if (!refreshToken)
+
+    const refreshTokenCookie = req.cookies?.refreshToken;
+
+    if (!refreshTokenCookie)
         throw new UnauthorizedError('Refresh token is required');
 
-    const decoded = await tokenUtils.verifyRefreshToken(refreshToken);
-    if (decoded.type !== 'refresh' || !decoded.id)
+    const refreshTokenPayload = await tokenUtils.verifyRefreshToken(refreshTokenCookie);
+
+    if (refreshTokenPayload.type !== 'refresh' || !refreshTokenPayload.id)
         throw new UnauthorizedError('Invalid refresh token');
 
-    const token = await issueTokens(res, decoded);
+    const accessToken = await issueTokens(res, refreshTokenPayload);
+
     return res
-        .status(httpResponseSuccessCode.OK)
-        .json(httpSuccessResponse({ token }));
+        .status(
+            httpResponseSuccessCode.OK
+        )
+        .json(
+            httpSuccessResponse({ token: accessToken })
+        );
 });
 
 const logout = (req, res) => {
     res.clearCookie('accessToken', { ...cookieBaseOptions, path: '/' });
     res.clearCookie('refreshToken', refreshCookieOptions);
     return res
-        .status(httpResponseSuccessCode.NO_CONTENT)
+        .status(
+            httpResponseSuccessCode.NO_CONTENT
+        )
         .end();
 };
 

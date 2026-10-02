@@ -9,25 +9,25 @@ import {
 
 function globalErrorHandler(err, req, res, next) {
     let statusCode = err.statusCode || httpResponseServerErrorCode.INTERNAL_SERVER_ERROR;
-    let message = err.isOperational ? err.message : 'Internal server error';
-    let data = err.isOperational ? err.data : null;
+    let errorMessage = err.isOperational ? err.message : 'Internal server error';
+    let responseData = err.isOperational ? err.data : null;
 
     if (err instanceof SyntaxError && err.status === httpResponseClientErrorCode.BAD_REQUEST) {
         statusCode = httpResponseClientErrorCode.BAD_REQUEST;
-        message = 'Invalid JSON request body';
-        data = null;
+        errorMessage = 'Invalid JSON request body';
+        responseData = null;
     }
 
     if (err.code === 11000) {
         statusCode = httpResponseClientErrorCode.CONFLICT;
-        message = 'Resource already exists';
-        data = null;
+        errorMessage = 'Resource already exists';
+        responseData = null;
     }
 
     if (err.name === 'ValidationError') {
         statusCode = httpResponseClientErrorCode.UNPROCESSIBLE_CONTENT;
-        message = 'Validation failed';
-        data = Object.values(err.errors).map(el => ({
+        errorMessage = 'Validation failed';
+        responseData = Object.values(err.errors).map(el => ({
             field: el.path,
             message: el.message
         }));
@@ -35,35 +35,35 @@ function globalErrorHandler(err, req, res, next) {
 
     if (err.name === 'CastError') {
         statusCode = httpResponseClientErrorCode.BAD_REQUEST;
-        message = `Invalid value for ${err.path}`;
-        data = null;
+        errorMessage = `Invalid value for ${err.path}`;
+        responseData = null;
     }
 
     if (err.name === 'MongoServerSelectionError' || err.name === 'MongoNetworkError') {
         statusCode = httpResponseServerErrorCode.SERVICE_UNVAILABLE;
-        message = 'Database service unavailable';
-        data = null;
+        errorMessage = 'Database service unavailable';
+        responseData = null;
     }
 
     if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
         statusCode = httpResponseClientErrorCode.UNAUTHORIZED;
-        message = 'Invalid or expired token';
-        data = null;
+        errorMessage = 'Invalid or expired token';
+        responseData = null;
     }
 
     if (statusCode >= httpResponseServerErrorCode.INTERNAL_SERVER_ERROR) {
-        data = null;
+        responseData = null;
     }
 
     if (statusCode >= httpResponseServerErrorCode.INTERNAL_SERVER_ERROR) {
         console.error(err);
     }
 
-    const response = statusCode >= httpResponseServerErrorCode.INTERNAL_SERVER_ERROR
-        ? httpErrorResponse(message, data)
-        : httpFailResponse(message, data);
+    const formattedResponse = statusCode >= httpResponseServerErrorCode.INTERNAL_SERVER_ERROR
+        ? httpErrorResponse(errorMessage, responseData)
+        : httpFailResponse(errorMessage, responseData);
 
-    return res.status(statusCode).json(response);
+    return res.status(statusCode).json(formattedResponse);
 }
 
 export default globalErrorHandler;
