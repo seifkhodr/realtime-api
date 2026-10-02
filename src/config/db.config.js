@@ -9,20 +9,20 @@ class DbConnection {
 
     async connect(){
         try {
-            const MONGODB_URI = "mongodb+srv://"
+            const MONGODB_URI = process.env.MONGODB_URI?.trim() || "mongodb+srv://"
                 .concat(
-                    encodeURIComponent(getEnv('MONGODB_USERNAME' , null)) ,
+                    encodeURIComponent(getEnv('MONGODB_USERNAME')),
                     ':',
-                    encodeURIComponent(getEnv('MONGODB_PASSWORD' , null)),
+                    encodeURIComponent(getEnv('MONGODB_PASSWORD')),
                     '@',
-                    getEnv('MONGODB_CLUSTER', null),
+                    getEnv('MONGODB_CLUSTER'),
                     '/?appName=',
-                    getEnv('MONGODB_APPNAME' , null)
+                    encodeURIComponent(getEnv('MONGODB_APPNAME'))
                 );
             await this.mongoose.connect(
                 MONGODB_URI,
                 {
-                    dbName : getEnv('MONGODB_DATABASENAME',null)
+                    dbName : getEnv('MONGODB_DATABASENAME')
                 }
             );
         } catch (error) {

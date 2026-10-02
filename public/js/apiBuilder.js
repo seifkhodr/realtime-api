@@ -207,9 +207,10 @@ class ConversationEndpoints {
 class MessageEndpoints {
   constructor(api) { this._api = api; }
 
-  /** GET /messages/:conversationId → message[] */
-  getByConversation(conversationId) {
-    return this._api._request(`/messages/${conversationId}`);
+  /** GET /messages/:conversationId?page=1&limit=20 → { data, pagination } */
+  getByConversation(conversationId, { page = 1, limit = 20 } = {}) {
+    const params = new URLSearchParams({ page, limit });
+    return this._api._request(`/messages/${conversationId}?${params}`);
   }
 
   /** POST /messages → message */

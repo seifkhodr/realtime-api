@@ -386,7 +386,11 @@ async function openConversation(convId) {
   try {
     var apiClient      = getApiClient();
     var messagesData   = await apiClient.messages.getByConversation(convId);
-    loadedMessages[convId] = Array.isArray(messagesData) ? messagesData : [];
+    loadedMessages[convId] = Array.isArray(messagesData?.data)
+      ? messagesData.data
+      : Array.isArray(messagesData)
+        ? messagesData
+        : [];
   } catch (error) {
     showError(error.message);
   }

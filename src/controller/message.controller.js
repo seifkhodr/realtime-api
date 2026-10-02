@@ -30,7 +30,8 @@ const getMessages = catchAsyncWrapper(
     async (req,res,next) => {
         const messages = await messageService.getConversationMessages(
             req.params.conversationId,
-            req.user.id
+            req.user.id,
+            req.query
         );
 
         return res

@@ -6,7 +6,7 @@ import http from 'http';
 import initSocket from './src/socket/socketServer.js';
 
 
-const port = getEnv('PORT' , null);
+const port = getEnv('PORT', '3000');
 const httpServer = http.createServer(app);
 
 

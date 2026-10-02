@@ -45,6 +45,11 @@ const userSchema = new Schema({
         default : '',
         trim : true,
     },
+    role: {
+        type: String,
+        enum: ['client', 'admin'],
+        default: 'client'
+    },
     lastSeen: {
         type : Date,
         default : Date.now,

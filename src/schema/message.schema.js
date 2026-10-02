@@ -25,4 +25,6 @@ const messageSchema = new mongoose.Schema(
     }
 );
 
+messageSchema.index({ conversationId: 1, createdAt: 1, _id: 1 });
+
 export default messageSchema;
