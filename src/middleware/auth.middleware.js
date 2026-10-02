@@ -2,15 +2,20 @@ import { UnauthorizedError } from '../utils/AppError.js';
 import tokenUtils from '../utils/token.utils.js';
 
 async function authMiddleware(req, res, next) {
-    // get the authorization header (e.g. Bearer ngjkfn12un4wejkfnrn....)
+
+    const cookieToken = req.cookies?.accessToken;
     const authHeader = req.headers.authorization;
-    // check if exist or start with Bearer(valid format )
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+    const headerToken = authHeader?.startsWith('Bearer ')
+        ? authHeader.slice(7)
+        : null;
+        
+    const token = cookieToken || headerToken;
+
+    if (!token) {
         const error = new UnauthorizedError('Authentication required');
         return next(error);
     }
-    // if valid get the token 
-    const token = authHeader.split(' ')[1];
 
     try {
         const decoded = await tokenUtils.verifyAccessToken(token);

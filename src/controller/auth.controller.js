@@ -5,19 +5,35 @@ import { httpResponseSuccessCode } from "../utils/enums/httpResponseStatusCode.j
 import { httpSuccessResponse } from "../utils/httpResponseFormatter.js";
 import { UnauthorizedError } from '../utils/AppError.js';
 
-const refreshCookieOptions = {
+const cookieBaseOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'lax'
+};
+
+const accessCookieOptions = {
+    ...cookieBaseOptions,
+    path: '/',
+    maxAge: 30 * 60 * 1000
+};
+
+const refreshCookieOptions = {
+    ...cookieBaseOptions,
     path: '/api/v1/auth',
     maxAge: 7 * 24 * 60 * 60 * 1000
 };
 
-async function issueTokens(res, userId) {
-    const payload = { id: userId.toString() };
+async function issueTokens(res, user) {
+    const payload = {
+        id: user._id?.toString() || user.id?.toString(),
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role
+    };
     const token = await tokenUtils.generateAccessToken(payload);
     const refreshToken = await tokenUtils.generateRefreshToken(payload);
 
+    res.cookie('accessToken', token, accessCookieOptions);
     res.cookie('refreshToken', refreshToken, refreshCookieOptions);
     return token;
 }
@@ -26,7 +42,7 @@ const register = catchAsyncWrapper(
     async (req, res, next) => {
         const newUser = await authService.createUser(req.data);
 
-        const token = await issueTokens(res, newUser._id);
+        const token = await issueTokens(res, newUser);
 
         return res
             .status(
@@ -43,7 +59,7 @@ const login = catchAsyncWrapper(
         // const { email, password } = req.body;
         const user = await authService.authenticateUser(req.data);
 
-        const token = await issueTokens(res, user._id);
+        const token = await issueTokens(res, user);
 
         return res
             .status(
@@ -64,13 +80,14 @@ const refresh = catchAsyncWrapper(async (req, res) => {
     if (decoded.type !== 'refresh' || !decoded.id)
         throw new UnauthorizedError('Invalid refresh token');
 
-    const token = await issueTokens(res, decoded.id);
+    const token = await issueTokens(res, decoded);
     return res
         .status(httpResponseSuccessCode.OK)
         .json(httpSuccessResponse({ token }));
 });
 
 const logout = (req, res) => {
+    res.clearCookie('accessToken', { ...cookieBaseOptions, path: '/' });
     res.clearCookie('refreshToken', refreshCookieOptions);
     return res
         .status(httpResponseSuccessCode.NO_CONTENT)
